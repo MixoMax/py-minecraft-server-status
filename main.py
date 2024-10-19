@@ -75,6 +75,11 @@ def get_stats(host: str) -> tuple[int, int, list[str]]:
 
 
 
+def log_stats():
+    num_players, max_players, players = get_stats(host)
+    print(f"{num_players}/{max_players} players: {players}")
+    cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?)", (int(time.time()), num_players, max_players, ",".join(players)))
+    db.commit()
 
     
 
@@ -88,15 +93,17 @@ print("error codes: -1: no connection (server is probably offline), -X: HTTP err
 
 
 interval = 5
-last_query = 0
+last_query = time.time()
 while True:
-    current_time = int(time.time())
-    if current_time - last_query >= interval:
-        last_query = current_time
-        num_players, max_players, players = get_stats(host)
-        
-        players_str = ",".join(players)
+    t_start = time.time()
+    log_stats()
+    t_end = time.time()
 
-        print(f"{current_time}: {num_players}/{max_players} players: {players_str}")
-        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?)", (current_time, num_players, max_players, players_str))
-        db.commit()
+    time_taken = t_end - t_start
+    wait_time = interval - time_taken
+
+    if wait_time > 0:
+        time.sleep(wait_time)
+    else:
+        print(f"Warning: Time taken: {time_taken} > interval: {interval}")
+        
