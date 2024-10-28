@@ -78,8 +78,11 @@ def get_stats(host: str) -> tuple[int, int, list[str]]:
 def log_stats():
     num_players, max_players, players = get_stats(host)
     print(f"{num_players}/{max_players} players: {players}")
-    cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?)", (int(time.time()), num_players, max_players, ",".join(players)))
-    db.commit()
+    try:
+        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?)", (int(time.time()), num_players, max_players, ",".join(players)))
+        db.commit()
+    except sqlite3.IntegrityError:
+        print("Warning: Duplicate entry")
 
     
 
