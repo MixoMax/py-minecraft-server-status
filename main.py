@@ -71,9 +71,6 @@ def get_stats(host: str) -> tuple[int, int, list[str]]:
 
         players.append(name)
     
-    with open("test.html", "w") as f:
-        f.write(og_html)
-    
     
     return num_players, max_players, players
 
@@ -88,7 +85,26 @@ def log_stats():
     except sqlite3.IntegrityError:
         print("Warning: Duplicate entry")
 
-    
+
+def print_spinner():
+    symbols = [
+        "( ●    )",
+        "(  ●   )",
+        "(   ●  )",
+        "(    ● )",
+        "(     ●)",
+        "(    ● )",
+        "(   ●  )",
+        "(  ●   )",
+        "( ●    )",
+        "(●     )"
+    ]
+    t = time.time()
+
+    symbols_per_second = 4
+
+    symbol = symbols[int(t * symbols_per_second) % len(symbols)]
+    print(symbol, end="\r")
 
 
 
@@ -110,7 +126,9 @@ while True:
     wait_time = interval - time_taken
 
     if wait_time > 0:
-        time.sleep(wait_time)
+        while time.time() - t_start < interval:
+            print_spinner()
+        
     else:
         print(f"Warning: Time taken: {time_taken} > interval: {interval}")
         
