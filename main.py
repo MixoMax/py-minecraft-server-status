@@ -6,7 +6,7 @@ import time
 from enum import Enum
 
 
-host = "fsr-informatik.de"
+host = "31.16.124.24"
 
 db = sqlite3.connect("stats.db")
 cursor = db.cursor()
@@ -70,6 +70,10 @@ def get_stats(host: str) -> tuple[int, int, list[str]]:
         html = html[html.find(name_end):]
 
         players.append(name)
+    
+    with open("test.html", "w") as f:
+        f.write(og_html)
+    
     
     return num_players, max_players, players
 
