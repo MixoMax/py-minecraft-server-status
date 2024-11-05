@@ -128,6 +128,7 @@ while True:
     if wait_time > 0:
         while time.time() - t_start < interval:
             print_spinner()
+            time.sleep(1/4 - 0.01)
         
     else:
         print(f"Warning: Time taken: {time_taken} > interval: {interval}")
