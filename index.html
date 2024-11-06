@@ -43,7 +43,7 @@
 
         // make a request to the server
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "http://localhost:8002/api/v1/get_stats?t_start=" + start_date + "&t_end=" + end_date, true);
+        xhr.open("GET", "/api/v1/get_stats?t_start=" + start_date + "&t_end=" + end_date, true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 var data = JSON.parse(xhr.responseText);
