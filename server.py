@@ -38,6 +38,9 @@ async def log_stats(request: Request):
     players = data.get("players")
     max_players = data.get("max_players")
     # timestamp: UNIX timestamp from int(time.time())
+
+    print(f"{timestamp=}, {players=}, {max_players=}")
+
     cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?)", (timestamp, len(players), max_players, ",".join(players)))
     db.commit()
     return JSONResponse(content={"status": "ok"})
@@ -74,12 +77,21 @@ async def get_stats(t_start: str, t_end: str):
         "data": rows
     }, status_code=200)
 
+@app.get("/api/v1/current_stats")
+async def current_stats():
+    cursor.execute("SELECT * FROM stats ORDER BY time DESC LIMIT 1")
+    row = cursor.fetchone()
+    return JSONResponse(content={
+        "status": "ok" if row[2] > 0 else "error",
+        "timestamp": row[0],
+        "timestamp_human": datetime.fromtimestamp(row[0]).strftime("%Y-%m-%d %H:%M:%S"),
+        "num_players": row[1],
+        "max_players": row[2],
+        "players": row[3].split(",")
+    }, status_code=200)
 
 
 
-
-
-    
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)

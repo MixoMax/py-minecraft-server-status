@@ -1,6 +1,7 @@
 import requests
 import re
 import time
+import sys
 
 from datetime import datetime
 
@@ -69,7 +70,7 @@ def upload_stats(host: str):
     num_players, max_players, players = get_stats(host)
     timestamp = int(time.time())
 
-    print(f"{datetime.fromtimestamp(timestamp)}: {num_players}/{max_players} players")
+    print(f"{datetime.fromtimestamp(timestamp)}: {num_players}/{max_players} players ({players})")
 
     res = requests.post("http://localhost:8002/api/v1/log_stats", json={"timestamp": timestamp, "players": players, "max_players": max_players})
 
@@ -84,6 +85,15 @@ def upload_stats(host: str):
 interval = 5 #s
 
 while True:
+
+    argv = sys.argv
+    argc = len(argv)
+
+    if argc > 1:
+        host = argv[1]
+    
+    print(f"Checking {host} every {interval} seconds")
+
     t_start = time.time()
 
     upload_stats(host)
