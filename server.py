@@ -40,9 +40,13 @@ async def log_stats(request: Request):
     # timestamp: UNIX timestamp from int(time.time())
 
     print(f"{timestamp=}, {players=}, {max_players=}")
-
-    cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?)", (timestamp, len(players), max_players, ",".join(players)))
-    db.commit()
+    
+    try:
+        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?)", (timestamp, len(players), max_players, ",".join(players)))
+        db.commit()
+    except sqlite3.IntegrityError:
+        return JSONResponse(content={"status": "ok", "message": "Timestamp already exists!"}, status_code=200)
+    
     return JSONResponse(content={"status": "ok"})
 
 @app.get("/api/v1/get_stats")
