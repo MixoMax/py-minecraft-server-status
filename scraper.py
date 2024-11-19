@@ -8,6 +8,7 @@ from datetime import datetime
 
 host = "31.16.124.24"
 
+upload_queue = []
 
 
 
@@ -67,17 +68,25 @@ def get_stats(host: str) -> tuple[int, int, list[str]]:
 
 
 def upload_stats(host: str):
+    global upload_queue
+
     num_players, max_players, players = get_stats(host)
     timestamp = int(time.time())
 
     print(f"{datetime.fromtimestamp(timestamp)}: {num_players}/{max_players} players ({players})")
 
-    res = requests.post("http://localhost:8002/api/v1/log_stats", json={"timestamp": timestamp, "players": players, "max_players": max_players})
+    upload_queue.append((timestamp, num_players, max_players, players))
 
-    if res.status_code != 200:
-        print(f"Error: {res.status_code}")
-        print(res.json())
-        return -res.status_code
+    for timestamp, players, max_players, players in upload_queue:
+        res = requests.post("http://localhost:8002/api/v1/log_stats", json={"timestamp": timestamp, "players": players, "max_players": max_players})
+
+        if res.status_code != 200:
+            print(f"Error: {res.status_code}")
+            print(res.json())
+            return -res.status_code
+        
+        else:
+            upload_queue = upload_queue[1:]
 
     return 0
 
