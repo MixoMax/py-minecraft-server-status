@@ -78,15 +78,18 @@ def upload_stats(host: str):
     upload_queue.append((timestamp, num_players, max_players, players))
 
     for timestamp, players, max_players, players in upload_queue:
-        res = requests.post("http://localhost:8002/api/v1/log_stats", json={"timestamp": timestamp, "players": players, "max_players": max_players})
 
-        if res.status_code != 200:
-            print(f"Error: {res.status_code}")
-            print(res.json())
-            return -res.status_code
-        
-        else:
-            upload_queue = upload_queue[1:]
+        try:
+            res = requests.post("http://localhost:8002/api/v1/log_stats", json={"timestamp": timestamp, "players": players, "max_players": max_players})
+
+            if res.status_code == 200:
+                upload_queue = upload_queue[1:]
+            else:
+                print(f"Error: {res.status_code}")
+                return -res.status_code
+        except:
+            print("Error: Connection refused")
+            
 
     return 0
 
